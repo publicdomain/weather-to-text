@@ -14,7 +14,7 @@ Targets Microsoft .NET framework v4.5 (Native to Windows 8+)
 Notes:
 
 v0.1.0:
-- Works as per user requirement on the thread.
+- Displays weather columns in a text table.
 
 Day #135, Week #19 @ May 15, 2021
 
