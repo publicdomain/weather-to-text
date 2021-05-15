@@ -51,6 +51,8 @@
     <None Include="Resources\HtmlAgilityPack.dll" />
     <None Include="Resources\ConsoleTableExt.dll" />
     <None Include="Resources\publicdomain.com_7-8-vista-xp.ico" />
+    <None Include="Resources\LICENSE-ConsoleTableExt" />
+    <None Include="Resources\LICENSE-HtmlAgilityPack" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
