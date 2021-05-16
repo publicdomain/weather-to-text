@@ -34,56 +34,86 @@ namespace WeatherToText
             // Catch errors
             try
             {
-                // The web client
+                // Configure service point manager
+                ServicePointManager.Expect100Continue = true;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11;
+
+                // Set web client
                 WebClient webClient = new WebClient();
 
                 // Get the html
-                string page = webClient.DownloadString("https://www.klart.se/se/s%C3%B6dermanlands-l%C3%A4n/v%C3%A4der-alberga/timmar/");
+                string html = webClient.DownloadString("https://www.klart.se/se/s%C3%B6dermanlands-l%C3%A4n/v%C3%A4der-alberga/timmar/");
 
                 // The HTML document
                 HtmlDocument htmlDocument = new HtmlDocument();
 
-                // Load the 
-                htmlDocument.LoadHtml(page);
+                // Load the HTML
+                htmlDocument.LoadHtml(html);
 
-                // Set nodes
-                HtmlNode article = htmlDocument.DocumentNode.SelectSingleNode($"//article[@id='{DateTime.Now.ToString("yyyy-MM-dd")}']");
+                // Declare article ID
+                string articleId = DateTime.UtcNow.AddHours(1).ToString("yyyy-MM-dd");
+
+                // Set article id
+                if (htmlDocument.GetElementbyId(articleId) == null)
+                {
+                    // Daylight saving time
+                    articleId = DateTime.UtcNow.AddHours(2).ToString("yyyy-MM-dd");
+                }
+
+                HtmlNode article = htmlDocument.GetElementbyId(articleId);
                 HtmlNode table = article.SelectSingleNode("//table[@class='hours-list']");
-                HtmlNode tbody = article.SelectSingleNode("//tbody[@class='content']");
+                HtmlNode tbody = table.SelectSingleNode("//tbody[@class='content']");
 
                 // The table data list
                 List<List<object>> tableDataList = new List<List<object>>();
 
-                // Process row nodes
-                foreach (HtmlNode rowHtmlNode in tbody.SelectNodes("tr"))
-                {
-                    // Column count
-                    int columnCount = 0;
+                // Insert first-row substitutions
+                var firstRowDataList = new List<object>();
+                firstRowDataList.Add("Tid");
+                firstRowDataList.Add("temp");
+                firstRowDataList.Add("känns");
+                firstRowDataList.Add("mm");
+                firstRowDataList.Add("m/s (by)");
+                firstRowDataList.Add($"sannolikhet nederbörd");
+                firstRowDataList.Add("sannolikhet åska");
 
-                    // THe row data list
+                // Add the data list
+                tableDataList.Add(firstRowDataList);
+
+                // Process  range
+                for (int row = 1; row < tbody.SelectNodes("tr").Count; row++)
+                {
+                    // Insert first-row substitutions
                     var rowDataList = new List<object>();
 
-                    // Iterate cells
-                    foreach (HtmlNode cellHtmlNode in rowHtmlNode.SelectNodes("th|td"))
-                    {
-                        // Set processed inner text
-                        string cellText = regex.Replace(cellHtmlNode.InnerText.Trim(), string.Empty);
+                    // Process row
+                    HtmlNode rowHtmlNode = tbody.SelectNodes("tr")[row];
 
-                        // Check length
-                        if (cellText.Length > 0)
+                    // Iterate cells
+                    if (rowHtmlNode.SelectNodes("td").Count > 0)
+                    {
+                        // Iterate cells
+                        for (int column = 0; column < rowHtmlNode.SelectNodes("td").Count; column++)
                         {
-                            // Check if it's done
-                            if (columnCount == 7)
+                            // Prevent > 7 columns
+                            if (column == 7)
                             {
-                                // halt flow
+                                // Exit for
                                 break;
                             }
 
-                            // Has length and it's within working range. Add it
-                            rowDataList.Add(cellText);
+                            // Set cell HTML node
+                            HtmlNode cellHtmlNode = rowHtmlNode.SelectNodes("td")[column];
 
-                            // Raise column count
-                            columnCount++;
+                            // Set processed inner text
+                            string cellText = regex.Replace(cellHtmlNode.InnerText.Trim(), string.Empty);
+
+                            // Check length
+                            if (cellText.Length > 0)
+                            {
+                                // Has length and it's within working range. Add it
+                                rowDataList.Add(cellText);
+                            }
                         }
                     }
 
