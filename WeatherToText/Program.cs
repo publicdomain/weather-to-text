@@ -8,13 +8,11 @@ namespace WeatherToText
 {
     // Directives
     using System;
-    using System.Net;
-    using System.IO;
-    using HtmlAgilityPack;
-    using System.Text.RegularExpressions;
     using System.Collections.Generic;
+    using System.Net;
+    using System.Text.RegularExpressions;
     using ConsoleTableExt;
-    using System.Text;
+    using HtmlAgilityPack;
 
     /// <summary>
     /// Main class.
@@ -32,6 +30,9 @@ namespace WeatherToText
         /// <param name="args">The command-line arguments.</param>
         private static void Main(string[] args)
         {
+            // Set encoding
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+
             // Check for no args
             if (args.Length == 0)
             {
@@ -45,9 +46,6 @@ namespace WeatherToText
             // Catch errors
             try
             {
-                // TODO Set default encoding for the system [Change font to "Consolas"]
-                Console.OutputEncoding = System.Text.Encoding.UTF8;
-
                 // Text color
                 Console.ForegroundColor = ConsoleColor.Yellow;
 
@@ -170,7 +168,6 @@ namespace WeatherToText
 
                     // Output table
                     Console.WriteLine(exportedTable);
-
                 }
             }
             catch (Exception exception)
