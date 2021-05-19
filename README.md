@@ -15,7 +15,7 @@ Targets Microsoft .NET framework v4.5 (Native to Windows 8+)
 
 Notes:
 
-v0-2-0:
+v0.2.0:
 - Ensure UTF-8 output.
 - Update weather table.
 
