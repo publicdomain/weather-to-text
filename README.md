@@ -1,7 +1,9 @@
 # WeatherToText
 Displays the weather in the command line (weather forecast to text).
 
-![WeatherToText_v0-1-1_Linux](https://user-images.githubusercontent.com/54631779/118387446-9912fd80-b5ec-11eb-80e1-ca0512ef272b.png)
+![WeatherToText_v0-2-0_screenshot_2](https://user-images.githubusercontent.com/54631779/118879651-fba31c80-b8be-11eb-95c9-f167532c9024.png)
+
+![WeatherToText_v0-2-0](https://user-images.githubusercontent.com/54631779/118879671-0067d080-b8bf-11eb-8472-f5b0a313b6ed.png)
 
 Made for **user45454** from [donationcoder.com](https://www.donationcoder.com).
 
