@@ -9,7 +9,7 @@ Made for **user45454** from [donationcoder.com](https://www.donationcoder.com).
 
 Original thread: [Re: IDEA: Display the weather in the command line (Weather forcast to text)](https://www.donationcoder.com/forum/index.php?topic=51394.0)
 
-Source code: [WeatherToText_v0 @ GitHub](https://github.com/publicdomain/weather-to-text)
+Source code: [WeatherToText @ GitHub](https://github.com/publicdomain/weather-to-text)
 
 Targets Microsoft .NET framework v4.5 (Native to Windows 8+)
 
