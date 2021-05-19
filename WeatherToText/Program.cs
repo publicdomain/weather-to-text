@@ -14,6 +14,7 @@ namespace WeatherToText
     using System.Text.RegularExpressions;
     using System.Collections.Generic;
     using ConsoleTableExt;
+    using System.Text;
 
     /// <summary>
     /// Main class.
@@ -31,9 +32,25 @@ namespace WeatherToText
         /// <param name="args">The command-line arguments.</param>
         private static void Main(string[] args)
         {
+            // Check for no args
+            if (args.Length == 0)
+            {
+                // Advice user
+                Console.WriteLine("Missing arguments.");
+
+                // Halt program flow
+                return;
+            }
+
             // Catch errors
             try
             {
+                // TODO Set default encoding for the system [Change font to "Consolas"]
+                Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+                // Text color
+                Console.ForegroundColor = ConsoleColor.Yellow;
+
                 // Configure service point manager
                 ServicePointManager.Expect100Continue = true;
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11;
@@ -42,24 +59,33 @@ namespace WeatherToText
                 WebClient webClient = new WebClient();
 
                 // Get the html
-                string html = webClient.DownloadString("https://www.klart.se/se/s%C3%B6dermanlands-l%C3%A4n/v%C3%A4der-alberga/timmar/");
+                string html = webClient.DownloadString(args[0]);
 
                 // The HTML document
                 HtmlDocument htmlDocument = new HtmlDocument();
 
                 // Load the HTML
                 htmlDocument.LoadHtml(html);
+                //htmlDocument.LoadHtml(File.ReadAllText("Väder Alberga - Södermanlands län_ timme för timme - Klart.se.html"));
 
-                // Declare article ID
-                string articleId = DateTime.UtcNow.AddHours(1).ToString("yyyy-MM-dd");
+                // TODO Declare article ID (yesterday) [Can be calculated via GMT]
+                string articleId = DateTime.UtcNow.AddDays(-1).ToString("yyyy-MM-dd");
 
-                // Set article id
+                // Check if must set article ID
                 if (htmlDocument.GetElementbyId(articleId) == null)
                 {
-                    // Daylight saving time
-                    articleId = DateTime.UtcNow.AddHours(2).ToString("yyyy-MM-dd");
+                    // Today
+                    articleId = DateTime.UtcNow.ToString("yyyy-MM-dd");
                 }
 
+                // Check again if must set article ID
+                if (htmlDocument.GetElementbyId(articleId) == null)
+                {
+                    // Tomorrow
+                    articleId = DateTime.UtcNow.AddDays(1).ToString("yyyy-MM-dd");
+                }
+
+                // Set nodes
                 HtmlNode article = htmlDocument.GetElementbyId(articleId);
                 HtmlNode table = article.SelectSingleNode("//table[@class='hours-list']");
                 HtmlNode tbody = table.SelectSingleNode("//tbody[@class='content']");
@@ -73,9 +99,9 @@ namespace WeatherToText
                 firstRowDataList.Add("temp");
                 firstRowDataList.Add("känns");
                 firstRowDataList.Add("mm");
-                firstRowDataList.Add("m/s (by)");
-                firstRowDataList.Add($"sannolikhet nederbörd");
-                firstRowDataList.Add("sannolikhet åska");
+                firstRowDataList.Add("m/s");
+                firstRowDataList.Add($"nederbörd  ");
+                firstRowDataList.Add($"åska");
 
                 // Add the data list
                 tableDataList.Add(firstRowDataList);
@@ -128,10 +154,23 @@ namespace WeatherToText
                 // Check if must display
                 if (tableDataList.Count > 0)
                 {
-                    // Display it to end program
-                    ConsoleTableBuilder.From(tableDataList)
-                   .WithFormat(ConsoleTableBuilderFormat.Alternative)
-                   .ExportAndWriteLine(TableAligntment.Left);
+                    // Set exported table 
+                    string exportedTable = ConsoleTableBuilder.From(tableDataList)
+                   .WithFormat(ConsoleTableBuilderFormat.Minimal)
+                   .Export().ToString();
+
+                    // Fetch first line
+                    string firstLine = exportedTable.Substring(0, exportedTable.IndexOf(Environment.NewLine));
+
+                    // Prepend line
+                    Console.CursorLeft = exportedTable.IndexOf("nederbörd");
+                    Console.Write("Sannolikhet");
+                    Console.CursorLeft = exportedTable.IndexOf("åska");
+                    Console.Write("Sannolikhet" + Environment.NewLine);
+
+                    // Output table
+                    Console.WriteLine(exportedTable);
+
                 }
             }
             catch (Exception exception)
