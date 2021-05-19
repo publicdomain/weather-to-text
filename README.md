@@ -1,8 +1,6 @@
 # WeatherToText
 Displays the weather in the command line (weather forecast to text).
 
-![WeatherToText_v0-1-1_Windows](https://user-images.githubusercontent.com/54631779/118387441-957f7680-b5ec-11eb-856e-8297ea506c7e.png)
-
 ![WeatherToText_v0-1-1_Linux](https://user-images.githubusercontent.com/54631779/118387446-9912fd80-b5ec-11eb-80e1-ca0512ef272b.png)
 
 Made for **user45454** from [donationcoder.com](https://www.donationcoder.com).
@@ -14,6 +12,12 @@ Source code: [WeatherToText_v0 @ GitHub](https://github.com/publicdomain/weather
 Targets Microsoft .NET framework v4.5 (Native to Windows 8+)
 
 Notes:
+
+v0-2-0:
+- Ensure UTF-8 output.
+- Update weather table.
+
+Day #139, Week #20 @ May 19, 2021
 
 v0.1.1:
 - Fix Windows execution.
