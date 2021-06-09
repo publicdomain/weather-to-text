@@ -24,7 +24,7 @@ namespace WeatherToText
         /// <summary>
         /// The regex.
         /// </summary>
-        private static readonly Regex regex = new Regex(@"\s+|\(\d+\)", RegexOptions.Compiled);
+        private static readonly Regex regex = new Regex(@"Â|\s+|\(\d+\)", RegexOptions.Compiled);
 
         /// <summary>
         /// The entry point of the program, where the program control starts and ends.
@@ -124,7 +124,7 @@ namespace WeatherToText
                     for (int valueIndex = 0; valueIndex < 6; valueIndex++)
                     {
                         // Set processed inner text
-                        string value = regex.Replace(values[valueIndex].InnerText.Trim(), string.Empty);
+                        string value = regex.Replace(values[valueIndex].InnerText.Trim(), string.Empty);                        
 
                         // Check length
                         if (value.Length > 0)
