@@ -9,8 +9,10 @@ namespace WeatherToText
     // Directives
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Net;
     using System.Text.RegularExpressions;
+    using System.Xml.XPath;
     using ConsoleTableExt;
     using HtmlAgilityPack;
 
@@ -22,7 +24,7 @@ namespace WeatherToText
         /// <summary>
         /// The regex.
         /// </summary>
-        private static readonly Regex regex = new Regex(@"\s+", RegexOptions.Compiled);
+        private static readonly Regex regex = new Regex(@"\s+|\(\d+\)", RegexOptions.Compiled);
 
         /// <summary>
         /// The entry point of the program, where the program control starts and ends.
@@ -32,6 +34,9 @@ namespace WeatherToText
         {
             // Set encoding
             Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+            // Set console foreground color
+            var consoleForegoundColor = Console.ForegroundColor;
 
             // Check for no args
             if (args.Length == 0)
@@ -46,8 +51,15 @@ namespace WeatherToText
             // Catch errors
             try
             {
-                // Text color
-                Console.ForegroundColor = ConsoleColor.Yellow;
+                // Check for a color argument
+                if (args.Length > 1)
+                {
+                    // Set passed color ensuring first letter's uppercase 
+                    string passedColor = $"{char.ToUpperInvariant(args[1][0])}{args[1].Substring(1)}";
+
+                    // Set text color for program output
+                    Console.ForegroundColor = (ConsoleColor)Enum.Parse(typeof(ConsoleColor), passedColor);
+                }
 
                 // Configure service point manager
                 ServicePointManager.Expect100Continue = true;
@@ -56,37 +68,26 @@ namespace WeatherToText
                 // Set web client
                 WebClient webClient = new WebClient();
 
-                // Get the html
-                string html = webClient.DownloadString(args[0]);
+                // Declare the html string
+                string htmlString = string.Empty;
+
+                // Check for local or remote fetch
+                if (args[0].StartsWith("http"))
+                {
+                    // Set html string by download
+                    htmlString = webClient.DownloadString(args[0]);
+                }
+                else
+                {
+                    // Set html strnig by local file
+                    htmlString = File.ReadAllText(args[0]);
+                }
 
                 // The HTML document
                 HtmlDocument htmlDocument = new HtmlDocument();
 
                 // Load the HTML
-                htmlDocument.LoadHtml(html);
-                //htmlDocument.LoadHtml(File.ReadAllText("Väder Alberga - Södermanlands län_ timme för timme - Klart.se.html"));
-
-                // TODO Declare article ID (yesterday) [Can be calculated via GMT]
-                string articleId = DateTime.UtcNow.AddDays(-1).ToString("yyyy-MM-dd");
-
-                // Check if must set article ID
-                if (htmlDocument.GetElementbyId(articleId) == null)
-                {
-                    // Today
-                    articleId = DateTime.UtcNow.ToString("yyyy-MM-dd");
-                }
-
-                // Check again if must set article ID
-                if (htmlDocument.GetElementbyId(articleId) == null)
-                {
-                    // Tomorrow
-                    articleId = DateTime.UtcNow.AddDays(1).ToString("yyyy-MM-dd");
-                }
-
-                // Set nodes
-                HtmlNode article = htmlDocument.GetElementbyId(articleId);
-                HtmlNode table = article.SelectSingleNode("//table[@class='hours-list']");
-                HtmlNode tbody = table.SelectSingleNode("//tbody[@class='content']");
+                htmlDocument.LoadHtml(htmlString);
 
                 // The table data list
                 List<List<object>> tableDataList = new List<List<object>>();
@@ -101,52 +102,40 @@ namespace WeatherToText
                 firstRowDataList.Add($"nederbörd  ");
                 firstRowDataList.Add($"åska");
 
-                // Add the data list
+                // Add first row
                 tableDataList.Add(firstRowDataList);
 
-                // Process  range
-                for (int row = 1; row < tbody.SelectNodes("tr").Count; row++)
+                // Set rows
+                HtmlNodeCollection rows = htmlDocument.DocumentNode.SelectNodes("//*[starts-with(@id, 'hour-1_')]");
+
+                // Process rows
+                foreach (HtmlNode rowHtmlNode in rows)
                 {
-                    // Insert first-row substitutions
+                    // Declare row data list
                     var rowDataList = new List<object>();
 
-                    // Process row
-                    HtmlNode rowHtmlNode = tbody.SelectNodes("tr")[row];
+                    // Insert time
+                    rowDataList.Add(rowHtmlNode.SelectSingleNode(".//time").InnerText.Trim());
+
+                    // Set columns 
+                    HtmlNodeCollection values = rowHtmlNode.SelectNodes(".//span[@class='value']");
 
                     // Iterate cells
-                    if (rowHtmlNode.SelectNodes("td").Count > 0)
+                    for (int valueIndex = 0; valueIndex < 6; valueIndex++)
                     {
-                        // Iterate cells
-                        for (int column = 0; column < rowHtmlNode.SelectNodes("td").Count; column++)
+                        // Set processed inner text
+                        string value = regex.Replace(values[valueIndex].InnerText.Trim(), string.Empty);
+
+                        // Check length
+                        if (value.Length > 0)
                         {
-                            // Prevent > 7 columns
-                            if (column == 7)
-                            {
-                                // Exit for
-                                break;
-                            }
-
-                            // Set cell HTML node
-                            HtmlNode cellHtmlNode = rowHtmlNode.SelectNodes("td")[column];
-
-                            // Set processed inner text
-                            string cellText = regex.Replace(cellHtmlNode.InnerText.Trim(), string.Empty);
-
-                            // Check length
-                            if (cellText.Length > 0)
-                            {
-                                // Has length and it's within working range. Add it
-                                rowDataList.Add(cellText);
-                            }
+                            // Has length and it's within working range. Add it
+                            rowDataList.Add(value);
                         }
                     }
 
-                    // Check there's some data
-                    if (rowDataList.Count > 0)
-                    {
-                        // Add the data list
-                        tableDataList.Add(rowDataList);
-                    }
+                    // Push row into table data
+                    tableDataList.Add(rowDataList);
                 }
 
                 // Check if must display
@@ -174,6 +163,15 @@ namespace WeatherToText
             {
                 // Report error
                 Console.WriteLine($"Error: {exception.Message}");
+            }
+            finally
+            {
+                // Set console color back
+                if (args.Length > 1)
+                {
+                    // Set foregronud color
+                    Console.ForegroundColor = consoleForegoundColor;
+                }
             }
         }
     }
