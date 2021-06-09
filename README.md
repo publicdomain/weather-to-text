@@ -1,7 +1,9 @@
 # WeatherToText
 Displays the weather in the command line (weather forecast to text).
 
+![WeatherToText_v0-3-0_win](https://user-images.githubusercontent.com/54631779/121427333-96cd6600-c942-11eb-8835-9b45389f287c.png)
 
+![WeatherToText_v0-3-0](https://user-images.githubusercontent.com/54631779/121427363-9df47400-c942-11eb-8764-3c435623f049.png)
 
 Made for **user45454** from [donationcoder.com](https://www.donationcoder.com).
 
@@ -14,11 +16,11 @@ Targets Microsoft .NET framework v4.5 (Native to Windows 8+)
 Notes:
 
 v0.3.0:
-- Add console colors.
+- Add [console colors](https://docs.microsoft.com/en-us/dotnet/api/system.consolecolor?view=net-5.0).
 - Update formatting.
 - Fix degree symbol.
 
-
+Day #160, Week #23 @ June 09, 2021
 
 v0.2.0:
 - Ensure UTF-8 output.
