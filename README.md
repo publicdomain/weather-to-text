@@ -13,7 +13,17 @@ Source code: [WeatherToText @ GitHub](https://github.com/publicdomain/weather-to
 
 Targets Microsoft .NET framework v4.5 (Native to Windows 8+)
 
+Usage example:
+
+c:\WeatherToText.exe https://www.klart.se/se/södermanlands-län/väder-alberga/timmar/ yellow /N /T 1900
+
 Notes:
+
+v0.4.0
+- Add next day.
+- Add next day hour.
+
+Day #184, Week #26 @ July 03, 2021
 
 v0.3.0:
 - Add [console colors](https://docs.microsoft.com/en-us/dotnet/api/system.consolecolor?view=net-5.0).
@@ -52,4 +62,4 @@ Thanks & keep on rocking!
 
 ==========
 
-Enjoy more releases @ our website: [https://publicdomaingift.com](https://publicdomaingift.com)
+New weekly releases on the 1st, 7th, 14th and 21st @ https://publicdomainweekly.com

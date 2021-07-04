@@ -1,4 +1,4 @@
-﻿// <copyright file="Program.cs" company="PublicDomain.com">
+﻿// <copyright file="Program.cs" company="PublicDomainWeekly.com">
 //     CC0 1.0 Universal (CC0 1.0) - Public Domain Dedication
 //     https://creativecommons.org/publicdomain/zero/1.0/legalcode
 // </copyright>
@@ -48,6 +48,10 @@ namespace WeatherToText
                 return;
             }
 
+            // Declare variables
+            var nextDay = false;
+            var nextDayHour = -1;
+
             // Catch errors
             try
             {
@@ -59,6 +63,27 @@ namespace WeatherToText
 
                     // Set text color for program output
                     Console.ForegroundColor = (ConsoleColor)Enum.Parse(typeof(ConsoleColor), passedColor);
+                }
+
+                // Check for new day
+                if (args.Length > 2 && args[2] == "/N")
+                {
+                    // Set new day flag
+                    nextDay = true;
+                }
+
+                // Check for hour of new day
+                if (args.Length > 3 && args[3] == "/T")
+                {
+                    // Declare hour of the day
+                    int dayHour;
+
+                    // Check for a numeric hour
+                    if (int.TryParse(args[4], out dayHour))
+                    {
+                        // Set new day hour
+                        nextDayHour = dayHour;
+                    }
                 }
 
                 // Configure service point manager
@@ -105,8 +130,19 @@ namespace WeatherToText
                 // Add first row
                 tableDataList.Add(firstRowDataList);
 
+                // Toggle next day by date
+                if (nextDayHour > -1)
+                {
+                    // Compare against current  hour
+                    if (int.Parse($"{DateTime.Now.Hour}{DateTime.Now.Minute}") < nextDayHour)
+                    {
+                        // Set new day to false
+                        nextDay = false;
+                    }
+                }
+
                 // Set rows
-                HtmlNodeCollection rows = htmlDocument.DocumentNode.SelectNodes("//*[starts-with(@id, 'hour-1_')]");
+                HtmlNodeCollection rows = htmlDocument.DocumentNode.SelectNodes("//article[@class='day']")[nextDay ? 1 : 0].SelectNodes($".//*[starts-with(@id, 'hour-{(nextDay ? 2 : 1)}_')]");
 
                 // Process rows
                 foreach (HtmlNode rowHtmlNode in rows)
@@ -124,7 +160,7 @@ namespace WeatherToText
                     for (int valueIndex = 0; valueIndex < 6; valueIndex++)
                     {
                         // Set processed inner text
-                        string value = regex.Replace(values[valueIndex].InnerText.Trim(), string.Empty);                        
+                        string value = regex.Replace(values[valueIndex].InnerText.Trim(), string.Empty);
 
                         // Check length
                         if (value.Length > 0)
