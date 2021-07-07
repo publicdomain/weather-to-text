@@ -86,6 +86,17 @@ namespace WeatherToText
                     }
                 }
 
+                // Toggle next day by date
+                if (nextDayHour > -1)
+                {
+                    // Compare against current  hour
+                    if (int.Parse($"{DateTime.Now.Hour}{DateTime.Now.Minute}") < nextDayHour)
+                    {
+                        // Set new day to false
+                        nextDay = false;
+                    }
+                }
+
                 // Configure service point manager
                 ServicePointManager.Expect100Continue = true;
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11;
@@ -114,85 +125,17 @@ namespace WeatherToText
                 // Load the HTML
                 htmlDocument.LoadHtml(htmlString);
 
-                // The table data list
-                List<List<object>> tableDataList = new List<List<object>>();
+                // Print today
+                PrintTable(htmlDocument, false);
 
-                // Insert first-row substitutions
-                var firstRowDataList = new List<object>();
-                firstRowDataList.Add("Tid");
-                firstRowDataList.Add("temp");
-                firstRowDataList.Add("känns");
-                firstRowDataList.Add("mm");
-                firstRowDataList.Add("m/s");
-                firstRowDataList.Add($"nederbörd  ");
-                firstRowDataList.Add($"åska");
-
-                // Add first row
-                tableDataList.Add(firstRowDataList);
-
-                // Toggle next day by date
-                if (nextDayHour > -1)
+                // Print tomorrow
+                if (nextDay)
                 {
-                    // Compare against current  hour
-                    if (int.Parse($"{DateTime.Now.Hour}{DateTime.Now.Minute}") < nextDayHour)
-                    {
-                        // Set new day to false
-                        nextDay = false;
-                    }
-                }
+                    // Spacer
+                    Console.WriteLine($"{Environment.NewLine}");
 
-                // Set rows
-                HtmlNodeCollection rows = htmlDocument.DocumentNode.SelectNodes("//article[@class='day']")[nextDay ? 1 : 0].SelectNodes($".//*[starts-with(@id, 'hour-{(nextDay ? 2 : 1)}_')]");
-
-                // Process rows
-                foreach (HtmlNode rowHtmlNode in rows)
-                {
-                    // Declare row data list
-                    var rowDataList = new List<object>();
-
-                    // Insert time
-                    rowDataList.Add(rowHtmlNode.SelectSingleNode(".//time").InnerText.Trim());
-
-                    // Set columns 
-                    HtmlNodeCollection values = rowHtmlNode.SelectNodes(".//span[@class='value']");
-
-                    // Iterate cells
-                    for (int valueIndex = 0; valueIndex < 6; valueIndex++)
-                    {
-                        // Set processed inner text
-                        string value = regex.Replace(values[valueIndex].InnerText.Trim(), string.Empty);
-
-                        // Check length
-                        if (value.Length > 0)
-                        {
-                            // Has length and it's within working range. Add it
-                            rowDataList.Add(value);
-                        }
-                    }
-
-                    // Push row into table data
-                    tableDataList.Add(rowDataList);
-                }
-
-                // Check if must display
-                if (tableDataList.Count > 0)
-                {
-                    // Set exported table 
-                    string exportedTable = ConsoleTableBuilder.From(tableDataList)
-                   .WithFormat(ConsoleTableBuilderFormat.Minimal)
-                   .Export().ToString();
-
-                    // Fetch first line
-                    string firstLine = exportedTable.Substring(0, exportedTable.IndexOf(Environment.NewLine));
-
-                    // Prepend line
-                    Console.CursorLeft = exportedTable.IndexOf("nederbörd");
-                    Console.Write("Sannolikhet");
-                    Console.CursorLeft = exportedTable.IndexOf("åska");
-                    Console.Write("Sannolikhet" + Environment.NewLine);
-
-                    // Output table
-                    Console.WriteLine(exportedTable);
+                    // Print tomorrow
+                    PrintTable(htmlDocument, true);
                 }
             }
             catch (Exception exception)
@@ -208,6 +151,85 @@ namespace WeatherToText
                     // Set foregronud color
                     Console.ForegroundColor = consoleForegoundColor;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Prints the table.
+        /// </summary>
+        /// <param name="htmlDocument">Html document.</param>
+        /// <param name="nextDay">If set to <c>true</c> next day.</param>
+        /// <param name="nextDayHour">Next day hour.</param>
+        private static void PrintTable(HtmlDocument htmlDocument, bool nextDay)
+        {
+            // The table data list
+            List<List<object>> tableDataList = new List<List<object>>();
+
+            // Insert first-row substitutions
+            var firstRowDataList = new List<object>();
+            firstRowDataList.Add("Tid");
+            firstRowDataList.Add("temp");
+            firstRowDataList.Add("känns");
+            firstRowDataList.Add("mm");
+            firstRowDataList.Add("m/s");
+            firstRowDataList.Add($"nederbörd  ");
+            firstRowDataList.Add($"åska");
+
+            // Add first row
+            tableDataList.Add(firstRowDataList);
+
+            // Set rows
+            HtmlNodeCollection rows = htmlDocument.DocumentNode.SelectNodes("//article[@class='day']")[nextDay ? 1 : 0].SelectNodes($".//*[starts-with(@id, 'hour-{(nextDay ? 2 : 1)}_')]");
+
+            // Process rows
+            foreach (HtmlNode rowHtmlNode in rows)
+            {
+                // Declare row data list
+                var rowDataList = new List<object>();
+
+                // Insert time
+                rowDataList.Add(rowHtmlNode.SelectSingleNode(".//time").InnerText.Trim());
+
+                // Set columns 
+                HtmlNodeCollection values = rowHtmlNode.SelectNodes(".//span[@class='value']");
+
+                // Iterate cells
+                for (int valueIndex = 0; valueIndex < 6; valueIndex++)
+                {
+                    // Set processed inner text
+                    string value = regex.Replace(values[valueIndex].InnerText.Trim(), string.Empty);
+
+                    // Check length
+                    if (value.Length > 0)
+                    {
+                        // Has length and it's within working range. Add it
+                        rowDataList.Add(value);
+                    }
+                }
+
+                // Push row into table data
+                tableDataList.Add(rowDataList);
+            }
+
+            // Check if must display
+            if (tableDataList.Count > 0)
+            {
+                // Set exported table 
+                string exportedTable = ConsoleTableBuilder.From(tableDataList)
+               .WithFormat(ConsoleTableBuilderFormat.Minimal)
+               .Export().ToString();
+
+                // Fetch first line
+                string firstLine = exportedTable.Substring(0, exportedTable.IndexOf(Environment.NewLine));
+
+                // Prepend line
+                Console.CursorLeft = exportedTable.IndexOf("nederbörd");
+                Console.Write("Sannolikhet");
+                Console.CursorLeft = exportedTable.IndexOf("åska");
+                Console.Write("Sannolikhet" + Environment.NewLine);
+
+                // Output table
+                Console.WriteLine(exportedTable);
             }
         }
     }
