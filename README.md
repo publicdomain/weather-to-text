@@ -19,10 +19,10 @@ c:\WeatherToText.exe https://www.klart.se/se/södermanlands-län/väder-alberga/
 
 Notes:
 
-v0.5.0
+v0.5.2
 - Add separate PrintTable() for next day.
 
-Day #187, Week #27 @ July 06, 2021
+Day #194, Week #28 @ July 13, 2021
 
 v0.4.0
 - Add next day.
