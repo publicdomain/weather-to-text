@@ -22,6 +22,8 @@ Notes:
 v0.6.0
 - Add file output via /O:<filename>.
 
+Day #072, Week #10 @ March 13, 2022
+
 v0.5.2
 - Add separate PrintTable() for next day.
 
@@ -61,13 +63,20 @@ Day #135, Week #19 @ May 15, 2021
 
 ## RELEASE SPONSORS:
 
-* Jesse Reichler (A.K.A. Mouser from DonationCoder.com)
+* *Jesse Reichler* (A.K.A. Mouser from DonationCoder.com)
+* *Max P*
 * *Your name here*? :)
 
-You may support this project by expressing your excitement in the form of a Donation via Paypal @ [www.paypal.me/victorvls](https://www.paypal.me/victorvls) or by becoming a Patron @ [www.patreon.com/publicdomain](https://www.patreon.com/publicdomain).
+Our Public Domain project appreciates your one-time Donation via Paypal @ [www.paypal.com/paypalme/victorvls](https://www.paypal.com/paypalme/victorvls) or your steady support by becoming a Patron @ [www.patreon.com/publicdomain](https://www.patreon.com/publicdomain).
 
-Thanks & keep on rocking!
+Thank you very much for helping us bring more releases to life! 
+
+Keep on rocking!
 
 ==========
 
-New weekly releases on the 1st, 7th, 14th and 21st @ https://publicdomainweekly.com
+Email/Paypal: *publicdomainvic*@*gmail*.*com*
+
+==========
+
+Enjoy our latest free releases @ [https://publicdomain.is](https://publicdomain.is)
