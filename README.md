@@ -15,9 +15,12 @@ Targets Microsoft .NET framework v4.5 (Native to Windows 8+)
 
 Usage example:
 
-c:\WeatherToText.exe https://www.klart.se/se/södermanlands-län/väder-alberga/timmar/ yellow /N /T 1900
+c:\WeatherToText.exe https://www.klart.se/se/södermanlands-län/väder-alberga/timmar/ yellow /N /T 1900 /O:Weather.txt
 
 Notes:
+
+v0.6.0
+- Add file output via /O:<filename>.
 
 v0.5.2
 - Add separate PrintTable() for next day.
