@@ -20,7 +20,7 @@ c:\WeatherToText.exe https://www.klart.se/se/södermanlands-län/väder-alberga/
 Notes:
 
 v0.6.0
-- Add file output via /O:<filename>.
+- Add file output via /O:filename.
 
 Day #072, Week #10 @ March 13, 2022
 
