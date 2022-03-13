@@ -11,6 +11,7 @@ namespace WeatherToText
     using System.Collections.Generic;
     using System.IO;
     using System.Net;
+    using System.Text;
     using System.Text.RegularExpressions;
     using System.Xml.XPath;
     using ConsoleTableExt;
@@ -115,8 +116,20 @@ namespace WeatherToText
                 }
                 else
                 {
-                    // Set html strnig by local file
+                    // Set html string by local file
                     htmlString = File.ReadAllText(args[0]);
+                }
+
+                // Set empty output file path
+                string outputFilePath = string.Empty;
+
+                // Check for /O:<Path to file>
+                foreach (string arg in args)
+                {
+                    if (arg.ToLowerInvariant().StartsWith("/o:"))
+                    {
+                        outputFilePath = arg.Split(new char[] { ':' }, 2)[1];
+                    }
                 }
 
                 // The HTML document
@@ -125,18 +138,29 @@ namespace WeatherToText
                 // Load the HTML
                 htmlDocument.LoadHtml(htmlString);
 
+                StringBuilder stringBuilder = new StringBuilder();
+
                 // Print today
-                PrintTable(htmlDocument, false);
+                stringBuilder.AppendLine(PrintTable(htmlDocument, false));
 
                 // Print tomorrow
                 if (nextDay)
                 {
                     // Spacer
-                    Console.WriteLine($"{Environment.NewLine}");
+                    stringBuilder.AppendLine();
 
                     // Print tomorrow
-                    PrintTable(htmlDocument, true);
+                    stringBuilder.AppendLine(PrintTable(htmlDocument, true));
                 }
+
+                // Write to output file
+                if (outputFilePath != string.Empty)
+                {
+                    File.WriteAllText(outputFilePath, stringBuilder.ToString());
+                }
+
+                // Write to console
+                Console.Write(stringBuilder.ToString());
             }
             catch (Exception exception)
             {
@@ -157,11 +181,14 @@ namespace WeatherToText
         /// <summary>
         /// Prints the table.
         /// </summary>
+        /// <returns>The table.</returns>
         /// <param name="htmlDocument">Html document.</param>
         /// <param name="nextDay">If set to <c>true</c> next day.</param>
-        /// <param name="nextDayHour">Next day hour.</param>
-        private static void PrintTable(HtmlDocument htmlDocument, bool nextDay)
+        private static string PrintTable(HtmlDocument htmlDocument, bool nextDay)
         {
+            // The exported table string
+            string exportedTable = string.Empty;
+
             // The table data list
             List<List<object>> tableDataList = new List<List<object>>();
 
@@ -215,22 +242,14 @@ namespace WeatherToText
             if (tableDataList.Count > 0)
             {
                 // Set exported table 
-                string exportedTable = ConsoleTableBuilder.From(tableDataList)
+                exportedTable =
+                $"                        Sannolikhet Sannolikhet{Environment.NewLine}{exportedTable}" +
+                ConsoleTableBuilder.From(tableDataList)
                .WithFormat(ConsoleTableBuilderFormat.Minimal)
-               .Export().ToString();
-
-                // Fetch first line
-                string firstLine = exportedTable.Substring(0, exportedTable.IndexOf(Environment.NewLine));
-
-                // Prepend line
-                Console.CursorLeft = exportedTable.IndexOf("nederbörd");
-                Console.Write("Sannolikhet");
-                Console.CursorLeft = exportedTable.IndexOf("åska");
-                Console.Write("Sannolikhet" + Environment.NewLine);
-
-                // Output table
-                Console.WriteLine(exportedTable);
+               .Export().ToString(); ;
             }
+
+            return exportedTable;
         }
     }
 }
